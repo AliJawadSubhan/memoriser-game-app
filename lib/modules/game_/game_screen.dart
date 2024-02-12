@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_flip_card/flutter_flip_card.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:memorizer/extensions/buildcontext.dart';
 import 'package:memorizer/modules/game_/playing_card_model.dart';
@@ -10,15 +11,15 @@ Map<String, Map> selectedCards = {"first": {}, "second": {}};
 List<FlipCardController> correctCards = [];
 List<PlayingCard> card = [];
 
-class CardDistributionScreen extends StatefulWidget {
-  const CardDistributionScreen({super.key});
+class GamePage extends StatefulWidget {
+  const GamePage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _CardDistributionScreenState createState() => _CardDistributionScreenState();
+  _GamePageState createState() => _GamePageState();
 }
 
-class _CardDistributionScreenState extends State<CardDistributionScreen> {
+class _GamePageState extends State<GamePage> {
   final carIcon = PlayingCard(LineAwesome.taxi_solid, 1);
   final playIcon = PlayingCard(LineAwesome.video_solid, 2);
   final cameraIcon = PlayingCard(LineAwesome.youtube, 3);
@@ -45,6 +46,7 @@ class _CardDistributionScreenState extends State<CardDistributionScreen> {
   void initState() {
     super.initState();
     fillCards();
+    // card.shuffle();
   }
 
   @override
@@ -58,25 +60,36 @@ class _CardDistributionScreenState extends State<CardDistributionScreen> {
     });
 
     return Scaffold(
-      backgroundColor: Colors.pink.shade300,
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            childAspectRatio: 0.75,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Colors.deepPurple[200]!,
+              Colors.deepPurple[500]!,
+            ],
           ),
-          itemCount: card.length,
-          itemBuilder: (context, index) {
-            return CardWidget(
-              card: card[index],
-              controller: controllers[index],
-              index: index,
-              allCController: controllers,
-            );
-          },
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              childAspectRatio: 0.75,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemCount: card.length,
+            itemBuilder: (context, index) {
+              return CardWidget(
+                card: card[index],
+                controller: controllers[index],
+                index: index,
+                allCController: controllers,
+              );
+            },
+          ),
         ),
       ),
     );
@@ -124,7 +137,10 @@ class _CardWidgetState extends State<CardWidget>
               'controller': widget.controller,
             };
             log("Second ${selectedCards["second"]}");
-            resultFunction(widget.allCController);
+            var isas = resultFunction(widget.allCController, context);
+            if (isas) {
+              showCustomSnackBar(context);
+            }
           }
         }
       },
@@ -139,8 +155,8 @@ class _CardWidgetState extends State<CardWidget>
             height: context.screenHeight,
             child: Icon(
               widget.card.frontImagePath,
-              color: Colors.pink,
-              size: 31,
+              color: Colors.deepPurple[900]!,
+              size: 51,
             ),
           ),
         ),
@@ -149,20 +165,8 @@ class _CardWidgetState extends State<CardWidget>
     );
   }
 
-  Widget buildFrontWidget() => Center(
-        child: Container(
-          color: Colors.white,
-          width: context.screenWidth,
-          height: context.screenHeight,
-          child: const Icon(
-            Icons.arrow_back,
-            color: Colors.pink,
-          ),
-        ),
-      );
-
   Widget buildBackWidget() => Container(
-        color: Colors.blue,
+        color: Colors.deepPurple[200]!,
         width: context.screenWidth,
         height: context.screenHeight,
       );
@@ -171,7 +175,8 @@ class _CardWidgetState extends State<CardWidget>
   bool get wantKeepAlive => true;
 }
 
-void resultFunction(List<FlipCardController> allControllers) {
+dynamic resultFunction(
+    List<FlipCardController> allControllers, BuildContext context) {
   if (selectedCards["first"]!['value'] == selectedCards["second"]!['value']) {
     log("It matches");
 
@@ -182,7 +187,9 @@ void resultFunction(List<FlipCardController> allControllers) {
 
     correctCards.add(firstCardController);
     correctCards.add(secondCardController);
-    if (correctCards.length == card.length) {}
+    if (correctCards.length == card.length) {
+      return true;
+    }
   } else {
     log("It Doesn't match");
     Future.delayed(const Duration(milliseconds: 400), () {
@@ -196,4 +203,32 @@ void resultFunction(List<FlipCardController> allControllers) {
   // Reset selected cards
   selectedCards['first'] = {};
   selectedCards['second'] = {};
+}
+
+void showCustomSnackBar(BuildContext context) {
+  final snackBar = SnackBar(
+    content: Text(
+      'Hey, congrats, you just finished the game, retry?',
+      style: GoogleFonts.montserrat(color: Colors.white, fontSize: 16),
+    ),
+    backgroundColor: Colors.deepPurple,
+    behavior: SnackBarBehavior.floating,
+    margin: const EdgeInsets.all(50),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+    ),
+    duration: const Duration(days: 1),
+    action: SnackBarAction(
+      label: 'Yes',
+      textColor: Colors.yellow,
+      onPressed: () {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        }
+      },
+    ),
+  );
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 }
