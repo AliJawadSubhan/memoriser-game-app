@@ -83,7 +83,7 @@ class LandingPage extends StatelessWidget {
                   transitionType: TransitionType.LEFT_TO_RIGHT,
                   backgroundColor: Colors.deepPurple[700]!,
                   borderColor: Colors.white,
-                  borderRadius: 50,
+                  borderRadius: 32,
                   borderWidth: 1,
                 ),
                 const SizedBox(height: 30),

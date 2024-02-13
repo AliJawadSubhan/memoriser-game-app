@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:memorizer/extensions/buildcontext.dart';
 import 'package:memorizer/modules/game_/playing_card_model.dart';
+import 'package:memorizer/modules/result/result_page.dart';
 
 Map<String, Map> selectedCards = {"first": {}, "second": {}};
 List<FlipCardController> correctCards = [];
@@ -39,6 +41,32 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
+//   Timer? _timer;
+//   int _start = 10;
+//   void startTimer() {
+//     const oneSec = Duration(seconds: 1);
+//     _timer = Timer.periodic(
+//       oneSec,
+//       (Timer timer) {
+//         if (_start == 0) {
+//           setState(() {
+//             timer.cancel();
+//           });
+//         } else {
+//           setState(() {
+//             _start--;
+//           });
+//         }
+//       },
+//     );
+//   }
+
+// @override
+// void dispose() {
+//   _timer!.cancel();
+//   super.dispose();
+// }
+
   List<FlipCardController> controllers = List.generate(20, (index) {
     return FlipCardController();
   });
@@ -71,25 +99,57 @@ class _GamePageState extends State<GamePage> {
             ],
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: 0.75,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
+        child: Column(
+          children: [
+            TweenAnimationBuilder<Duration>(
+                duration: const Duration(minutes: 2),
+                tween: Tween(
+                    begin: const Duration(minutes: 2), end: Duration.zero),
+                onEnd: () {
+                  if (correctCards.length == card.length) {
+                    context.pushScreenTo(const ResultPage(didPass: true));
+                  } else {
+                    context.pushScreenTo(const ResultPage(didPass: false));
+                  }
+                },
+                builder: (BuildContext context, Duration value, Widget? child) {
+                  final minutes = value.inMinutes;
+                  final seconds = value.inSeconds % 60;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Text(
+                      '$minutes : $seconds',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.montserrat(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 30),
+                    ),
+                  );
+                }),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    childAspectRatio: 0.75,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: card.length,
+                  itemBuilder: (context, index) {
+                    return CardWidget(
+                      card: card[index],
+                      controller: controllers[index],
+                      index: index,
+                      allCController: controllers,
+                    );
+                  },
+                ),
+              ),
             ),
-            itemCount: card.length,
-            itemBuilder: (context, index) {
-              return CardWidget(
-                card: card[index],
-                controller: controllers[index],
-                index: index,
-                allCController: controllers,
-              );
-            },
-          ),
+          ],
         ),
       ),
     );
@@ -188,7 +248,7 @@ dynamic resultFunction(
     correctCards.add(firstCardController);
     correctCards.add(secondCardController);
     if (correctCards.length == card.length) {
-      return true;
+      context.pushScreenTo(const ResultPage(didPass: true));
     }
   } else {
     log("It Doesn't match");
