@@ -1,16 +1,16 @@
-# memorizer
+# Memoriser
 
-A new Flutter project.
+Memoriser is a game where you match pairs of cards. Start at the welcome screen, then play the game by flipping cards to find matches before time runs out.
 
-## Getting Started
+## Demo
 
-This project is a starting point for a Flutter application.
+Watch the game in action.
 
-A few resources to get you started if this is your first Flutter project:
+[![Game Demo](assets/game_demo_thumbnail.png)](https://github.com/AliJawadSubhan/memoriser-game-app/assets/97254328/28a86f2e-3e69-4844-9e00-0c95b85e5676 "Game Demo")
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## How to Play
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Open the app.
+2. Start the game from the welcome screen.
+3. Flip cards to find matching images.
+4. Match all pairs before the timer ends.
